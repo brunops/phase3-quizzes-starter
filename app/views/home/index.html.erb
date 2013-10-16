@@ -1,3 +1,9 @@
 <div class="container">
-  NOTHING TO SEE HERE!
+  <ul id="quizzes"></ul>
+
+  <script type="text/html" id="quiz-template">
+    <a href="#/quizzes/<%%= quiz.get('id') %>"><%%= quiz.get('name') %></a>
+    <span><%%= quiz.get('id') %></span>
+    <span><%%= quiz.get('name') %></span>
+  </script>
 </div>

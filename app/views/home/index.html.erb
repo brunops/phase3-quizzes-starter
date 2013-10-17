@@ -1,9 +1,27 @@
 <div class="container">
-  <ul id="quizzes"></ul>
+  <h1>Quizzes</h1>
+  <div id="quizzes"></div>
 
-  <script type="text/html" id="quiz-template">
-    <a href="#/quizzes/<%%= quiz.get('id') %>"><%%= quiz.get('name') %></a>
-    <span><%%= quiz.get('id') %></span>
-    <span><%%= quiz.get('name') %></span>
+  <div id="current-question"></div>
+
+  <script type="text/template" id="quizzes-template">
+    <%% _.each(quizzes, function(quiz) { %>
+      <div>
+        <a class="next_question" href="#/quizzes/<%%= quiz.get('id') %>/questions/next"><%%= quiz.get('name') %></a>
+        <span><%%= quiz.get('id') %></span>
+        <span><%%= quiz.get('name') %></span>
+      </div>
+    <%% }); %>
+  </script>
+
+  <script type="text/template" id="question-template">
+    <h2><strong><%%= question.question %></strong></h2>
+    <ul>
+      <%% _.each(question.choices, function(choice) { %>
+        <li>
+          <a class="answer" href="#/questions/<%%= question.id %>/answers"><%%= choice.choice %></a>
+        </li>
+      <%% }); %>
+    </ul>
   </script>
 </div>

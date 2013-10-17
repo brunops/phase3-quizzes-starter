@@ -1,61 +1,65 @@
-var Quiz = Backbone.Model.extend({
-  defaults: {
-    id: '',
-    name: '',
+var Question = Backbone.Model.extend({
+  initialize: function(quiz_id) {
+    this.quiz_id = quiz_id
+  },
+  url: function() {
+    return '/quizzes/' + this.quiz_id + '/questions/next.json?session_key=123'
   }
 });
 
-var QuizView = Backbone.View.extend({
-  tagName: 'li',
-
+var QuestionView = Backbone.View.extend({
+  el: '#current-question',
   render: function() {
     var self = this;
-    this.$el.html(_.template($('#quiz-template').html(), { quiz: self.model }));
-    return this.el;
+    self.model.fetch({
+      success: function(collection, response) {
+        self.$el.html(_.template($('#question-template').html(), { question: response }));
+      }
+    });
+    return this;
   }
 });
 
 var QuizCollection = Backbone.Collection.extend({
   url: '/quizzes.json',
-  model: Quiz,
   parse: function(data) {
     return data.quizzes;
   }
 });
 
-var quizCollection = new QuizCollection
-
-var QuizzesView = Backbone.View.extend({
-  el: 'ul#quizzes',
-  initialize: function(options) {
-    this.collection = options.collection;
-  },
+var QuizzesCollectionView = Backbone.View.extend({
+  el: '#quizzes',
   render: function() {
-    this.collection.each(function(quiz) {
-      var quizView = new QuizView({ model: quiz });
-      this.$el.append(quizView.render());
-    }, this);
+    var self = this;
+    var quizCollection = new QuizCollection;
+    quizCollection.fetch({
+      success: function(quizzes) {
+        var template = _.template($('#quizzes-template').html(), { quizzes: quizzes.models })
+        self.$el.html(template);
+      }
+    });
+
+    return this;
   }
 });
 
 var AppRouter = Backbone.Router.extend({
   routes: {
     '': 'home',
-    'quizzes/:id': 'startQuiz'
+    'quizzes/:quiz_id/questions/next': 'nextQuestion'
   }
 });
 var appRouter = new AppRouter;
+
 appRouter.on('route:home', function(){
-  quizCollection.fetch({
-    success: function(collection, response, options){
-      new QuizzesView({collection: collection}).render();
-    }
-  });
+  var quizzessCollectionView = new QuizzesCollectionView;
+  quizzessCollectionView.render();
 });
 
-appRouter.on('route:startQuiz', function(id) {
-  console.log(id)
-})
+appRouter.on('route:nextQuestion', function(quiz_id) {
+  var question = new Question(quiz_id);
+  new QuestionView({ model: question }).render();
+});
 
 Backbone.history.start();
 

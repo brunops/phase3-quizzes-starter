@@ -15,13 +15,14 @@
   </script>
 
   <script type="text/template" id="question-template">
-    <h2><strong><%%= question.question %></strong></h2>
-    <ul>
+    <form action="post" id="question-form">
+      <input id="question-id" type="hidden" value="<%%= question.id %>">
+      <h2><strong><%%= question.question %></strong></h2>
+
       <%% _.each(question.choices, function(choice) { %>
-        <li>
-          <a class="answer" href="#/questions/<%%= question.id %>/answers"><%%= choice.choice %></a>
-        </li>
+        <input type="radio" name="choice_id" value="<%%= choice.id %>"><%%= choice.choice %><br />
       <%% }); %>
-    </ul>
+      <input type="submit" value="Answer">
+    </form>
   </script>
 </div>

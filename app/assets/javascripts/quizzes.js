@@ -1,14 +1,33 @@
+$.fn.serializeObject = function() {
+  var o = {};
+  var a = this.serializeArray();
+  $.each(a, function() {
+    if (o[this.name] !== undefined) {
+      if (!o[this.name].push) {
+        o[this.name] = [o[this.name]];
+      }
+      o[this.name].push(this.value || '');
+    } else {
+      o[this.name] = this.value || '';
+    }
+  });
+  return o;
+};
+
 var Question = Backbone.Model.extend({
   initialize: function(quiz_id) {
     this.quiz_id = quiz_id
   },
   url: function() {
-    return '/quizzes/' + this.quiz_id + '/questions/next.json?session_key=123'
+    return '/quizzes/' + this.quiz_id + '/questions/next.json?session_key=1234'
   }
 });
 
 var QuestionView = Backbone.View.extend({
   el: '#current-question',
+  events: {
+    'submit #question-form': 'answerQuestion'
+  },
   render: function() {
     var self = this;
     self.model.fetch({
@@ -17,6 +36,24 @@ var QuestionView = Backbone.View.extend({
       }
     });
     return this;
+  },
+  answerQuestion: function(e) {
+    var self = this;
+    e.preventDefault();
+
+    var questionId = $('#question-id').val(),
+        formValues = $(e.currentTarget).serializeObject(),
+        url        = '/questions/' + questionId + '/answers.json',
+        data       = {
+          choice_id: formValues.choice_id
+        };
+
+    $.post(url, data, function(response) {
+      if (response.correct && !response.more_questions) {
+        appRouter.navigate('')
+        self.$el.empty();
+      }
+    })
   }
 });
 
